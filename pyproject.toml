@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=42"]
+build-backend = "setuptools.build_meta"
+
+
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+
+[project]
+name = "database"
+version = "0.0.1"
+description = "Database for satellite image for our deliberable for defense." 
+authors = [
+  { name = "kristian soerensen", email = "kaaso@space.dtu.dk" },
+]
+license = { file = "LICENSE" }
+keywords = ["db", "satellite images", "ais data"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Programming Language :: Python :: 3",
+]
+readme = "README.md"
+requires-python = ">=3.11"
+dynamic = ["dependencies", "optional-dependencies"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+[tool.setuptools.dynamic.optional-dependencies]
+dev = {file = ['requirements_dev.txt']}
+
+[tool.ruff]
+line-length = 160
+
+[tool.ruff.lint]
+select = ["I", "N", "E", "W", ]
+
+[tool.coverage.run]
+omit = ["tests/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v"

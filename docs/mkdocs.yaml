@@ -1,0 +1,23 @@
+site_name: s1_downloader
+site_author: kristian soerensen
+docs_dir: source
+
+theme:
+  language: en
+  name: material
+  features:
+    - content.code.copy
+    - content.code.annotate
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_root_heading: true
+            separate_signature: true
+            show_signature_annotations: true
+
+nav:
+  - Home: index.md
