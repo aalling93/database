@@ -26,10 +26,6 @@ from database.util.managers import (
 )
 
 
-CONSTELLATION_DETECTION_TABLES = {}
-CONSTELLATION_IMAGE_TABLES = {}
-
-
 class DatabaseHandler:
     def __init__(self, db_file: Optional[Path] = None, config: Optional[Settings] = None):
         self.config = config or Settings()
