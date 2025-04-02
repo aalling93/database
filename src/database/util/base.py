@@ -3,10 +3,11 @@
 from sqlalchemy.orm import declarative_base, DeclarativeMeta
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy import inspect
-from pydantic_settings import BaseSettings
-
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from pathlib import Path
 from pydantic import field_validator
+from pydantic import ValidationInfo
+
 
 Base: DeclarativeMeta = declarative_base()
 
@@ -21,14 +22,22 @@ class BaseMixin:
 
 
 class Settings(BaseSettings):
-    # Directory configuration
-    DOWNLOAD_DIR: Path = Path("data")
-    IN_PROGRESS_DIR: Path = Path("in_progress")
-    COMPLETED_DIR: Path = Path("completed")
+    base_path: Path = Path("data")
+    in_progress_dir: Path = Path("in_progress")
+    completed_dir: Path = Path("completed")
+    detections_dir: Path = Path("detections")
+    ais_dir: Path = Path("AIS")
 
-    # model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", case_sensitive=True, extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=Path(__file__).resolve().parent.parent / ".env",
+        env_file_encoding="utf-8",
+        case_sensitive=True,
+        extra="ignore",
+    )
 
-    @field_validator("IN_PROGRESS_DIR", "COMPLETED_DIR", mode="before")
+    @field_validator("in_progress_dir", "completed_dir", "detections_dir", "ais_dir", mode="after")
     @classmethod
-    def resolve_paths(cls, value: Path, values: dict) -> Path:
-        return values.data["DOWNLOAD_DIR"] / value
+    def resolve_subpaths(cls, v: Path, info: ValidationInfo) -> Path:
+        # Access base_path after all fields are parsed
+        base = info.data.get("base_path", Path("data"))
+        return v if v.is_absolute() else base / v

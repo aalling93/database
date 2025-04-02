@@ -5,7 +5,6 @@ import shutil
 import pytest
 from database.database_handler import DatabaseHandler
 from database.util.tables import ImageRecord, DetectionRecord, AISRecord
-
 from database.util.base import Settings
 
 
@@ -15,7 +14,8 @@ def temp_db():
     temp_dir = Path("data/temp_test_data")
     temp_dir.mkdir(exist_ok=True)
     settings = Settings()
-    settings.DOWNLOAD_DIR = temp_dir
+
+    settings.base_path = temp_dir
     db = DatabaseHandler(settings)
     yield db  # test functions will receive this
     shutil.rmtree(temp_dir)  # teardown
@@ -26,14 +26,14 @@ def insert_test_product(db, product_id: str, constellation: str, ais_count: int 
         "id": product_id,
         "constellation": constellation,
         "acquisition_time": datetime.utcnow(),
-        "file_path": db.config.DOWNLOAD_DIR / f"{product_id}.tif",
+        "file_path": db.config.base_path / f"{product_id}.tif",
     }
     db.image_manager.register_image(image_data)
 
     detection_data = {
         "image_id": product_id,
         "constellation": constellation,
-        "detection_file": db.config.DOWNLOAD_DIR / f"{product_id}_detections.json",
+        "detection_file": db.config.base_path / f"{product_id}_detections.json",
         "num_detections": 42,
         "avg_confidence": 0.87,
         "stats": {"mean_area": 12.4, "std_dev_area": 3.2},

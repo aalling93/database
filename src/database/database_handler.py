@@ -33,7 +33,7 @@ CONSTELLATION_IMAGE_TABLES = {}
 class DatabaseHandler:
     def __init__(self, config: Optional[Settings] = None):
         self.config = config or Settings()
-        self.db_path = self.config.DOWNLOAD_DIR / "downloads.db"
+        self.db_path = self.config.base_path / "downloads.db"
         # This points SQLAlchemy to the exact same file every time (unless settings.DOWNLOAD_DIR changes).
         # so if the file exists, it jsut reuse it.
         self.engine = create_engine(f"sqlite:///{self.db_path}", pool_pre_ping=True)
