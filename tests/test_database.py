@@ -16,7 +16,8 @@ def temp_db():
     settings = Settings()
 
     settings.base_path = temp_dir
-    db = DatabaseHandler(settings)
+    db = DatabaseHandler(config=settings)
+
     yield db  # test functions will receive this
     shutil.rmtree(temp_dir)  # teardown
 

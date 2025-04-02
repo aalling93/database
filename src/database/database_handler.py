@@ -6,7 +6,7 @@ from __future__ import annotations
 from contextlib import contextmanager
 from typing import Optional, Generator
 from datetime import datetime, timedelta
-
+from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session, scoped_session
 import pandas as pd
@@ -31,9 +31,12 @@ CONSTELLATION_IMAGE_TABLES = {}
 
 
 class DatabaseHandler:
-    def __init__(self, config: Optional[Settings] = None):
+    def __init__(self, db_file: Optional[Path] = None, config: Optional[Settings] = None):
         self.config = config or Settings()
-        self.db_path = self.config.base_path / "downloads.db"
+        #  self.db_path = self.config.base_path / "downloads.db"
+        self.db_path = Path(db_file) if db_file else self.config.base_path / "downloads.db"
+        self.db_path.parent.mkdir(parents=True, exist_ok=True)  # Ensure parent dir exists
+
         # This points SQLAlchemy to the exact same file every time (unless settings.DOWNLOAD_DIR changes).
         # so if the file exists, it jsut reuse it.
         self.engine = create_engine(f"sqlite:///{self.db_path}", pool_pre_ping=True)
