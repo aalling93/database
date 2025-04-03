@@ -8,6 +8,14 @@ from database.util.tables import ImageRecord, DetectionRecord, AISRecord
 from database.util.base import Settings
 
 
+import uuid
+
+from database.util.tables import (
+    ProductQueryHistory,
+    DownloadRecord,
+)
+
+
 @pytest.fixture(scope="module")
 def temp_db():
     # Setup temporary DB
@@ -35,9 +43,10 @@ def insert_test_product(db, product_id: str, constellation: str, ais_count: int 
         "image_id": product_id,
         "constellation": constellation,
         "detection_file": db.config.base_path / f"{product_id}_detections.json",
-        "num_detections": 42,
-        "avg_confidence": 0.87,
-        "stats": {"mean_area": 12.4, "std_dev_area": 3.2},
+        "num_ship_detections": 42,
+        "num_dark_ship_detections": 42,
+        "latitude": 54.1,
+        "longitude": 0.12,
     }
     db.detection_manager.record_detection(detection_data)
 
@@ -51,8 +60,6 @@ def insert_test_product(db, product_id: str, constellation: str, ais_count: int 
                 "longitude": 12.4 + idx * 0.01,
                 "speed": 12.0 + idx,
                 "heading": 45.0 + idx,
-                "status": "under way",
-                "source": "satellite",
             }
             for idx in range(ais_count)
         ]
@@ -80,3 +87,49 @@ def test_insert_product_without_ais(temp_db):
 
     with temp_db.session_scope() as s:
         assert s.query(AISRecord).filter_by(image_id="TEST_NOAIS_001").count() == 0
+
+
+def test_insert_query_history(temp_db):
+    with temp_db.session_scope() as s:
+        history = ProductQueryHistory(
+            id=str(uuid.uuid4()),
+            constellation="SENTINEL-1",
+            geometry_wkt="POLYGON ((10 10, 20 10, 20 20, 10 20, 10 10))",
+            start_date=datetime.utcnow() - timedelta(days=1),
+            end_date=datetime.utcnow(),
+            parameters={"test_param": "value"},
+        )
+        s.add(history)
+
+    with temp_db.session_scope() as s:
+        count = s.query(ProductQueryHistory).count()
+        assert count >= 1
+
+
+def test_insert_download_record(temp_db):
+    with temp_db.session_scope() as s:
+        query_id = str(uuid.uuid4())
+        s.add(ProductQueryHistory(id=query_id, constellation="SENTINEL-1"))
+
+        download = DownloadRecord(
+            product_id="DL_TEST_001",
+            query_id=query_id,
+            constellation="SENTINEL-1",
+            sensor_mode="IW",
+            product_type="GRD",
+            processing_level="L1",
+            status="DOWNLOADED",
+            file_path="/tmp/DL_TEST_001.tif",
+            file_size_mb=100.0,
+            checksum="fakechecksum123",
+            product_metadata={"key": "value"},
+            latitude=56.0,
+            longitude=10.0,
+        )
+        s.add(download)
+
+    with temp_db.session_scope() as s:
+        dl = s.query(DownloadRecord).filter_by(product_id="DL_TEST_001").first()
+        assert dl is not None
+        assert dl.status == "DOWNLOADED"
+        assert dl.latitude == 56.0

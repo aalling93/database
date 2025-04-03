@@ -104,9 +104,10 @@ class DetectionManager:
                     constellation=detection["constellation"],
                     image_id=detection["image_id"],
                     detection_file=str(detection["detection_file"]),
-                    num_detections=detection.get("num_detections"),
-                    avg_confidence=detection.get("avg_confidence"),
-                    stats=detection.get("stats", {}),
+                    num_ship_detections=detection.get("num_detections"),
+                    num_dark_ship_detections=detection.get("num_detections"),
+                    latitude=detection.get("num_detections"),
+                    longitude=detection.get("num_detections"),
                 )
             )
 
