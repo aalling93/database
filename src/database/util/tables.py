@@ -68,6 +68,10 @@ class ImageRecord(Base, BaseMixin):
     constellation = Column(String(50), ForeignKey("constellations.name"))
     acquisition_time = Column(DateTime)
     file_path = Column(String(255))
+
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
+
     constellation_rel = relationship("Constellation")
     ais_records = relationship("AISRecord", back_populates="image_rel", cascade="all, delete-orphan")
 
@@ -86,6 +90,10 @@ class DetectionRecord(Base, BaseMixin):
     num_detections = Column(Float)
     avg_confidence = Column(Float)
     stats = Column(JSON)
+
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
+
     image_rel = relationship("ImageRecord")
     constellation_rel = relationship("Constellation")
 
@@ -110,4 +118,5 @@ class AISRecord(Base, BaseMixin):
     status = Column(String(50))
     source = Column(String(50))  # e.g., "satellite", "terrestrial"
     # using the imagerecord id as key here..
+
     image_rel = relationship("ImageRecord", back_populates="ais_records")
