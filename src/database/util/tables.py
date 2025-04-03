@@ -48,7 +48,7 @@ class DownloadRecord(Base, BaseMixin):
     acqusition_time = Column(DateTime, nullable=True)
     publication_time = Column(DateTime, nullable=True)
     latency = Column(Float, nullable=True)
-    coordinates = Column(JSON, nullable=True)
+    coordinates = Column(String(255), nullable=True)
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
     name = Column(String(255), nullable=True)

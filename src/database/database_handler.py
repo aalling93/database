@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 from typing import Optional, Generator
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session, scoped_session
@@ -88,7 +88,7 @@ class DatabaseHandler:
             pd.DataFrame: A DataFrame containing the download history.
         """
         with self.session_scope() as session:
-            query = session.query(DownloadRecord).filter(DownloadRecord.download_time >= datetime.utcnow() - timedelta(days=days))
+            query = session.query(DownloadRecord).filter(DownloadRecord.download_time >= datetime.now(timezone.utc) - timedelta(days=days))
             return pd.read_sql(query.statement, session.bind)
 
     def is_downloaded(self, product_id: str) -> bool:

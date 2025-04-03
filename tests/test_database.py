@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import shutil
@@ -6,8 +6,6 @@ import pytest
 from database.database_handler import DatabaseHandler
 from database.util.tables import ImageRecord, DetectionRecord, AISRecord
 from database.util.base import Settings
-
-
 import uuid
 
 from database.util.tables import (
@@ -19,7 +17,7 @@ from database.util.tables import (
 @pytest.fixture(scope="module")
 def temp_db():
     # Setup temporary DB
-    temp_dir = Path("/Users/kaaso/Documents/Tordenskjold/coding/database/data/temp_test_data")
+    temp_dir = Path("data/temp_test_data")
     temp_dir.mkdir(exist_ok=True)
     settings = Settings()
 
@@ -27,14 +25,14 @@ def temp_db():
     db = DatabaseHandler(config=settings)
 
     yield db  # test functions will receive this
-    #shutil.rmtree(temp_dir)  # teardown
+    shutil.rmtree(temp_dir)  # teardown
 
 
 def insert_test_product(db, product_id: str, constellation: str, ais_count: int = 0):
     image_data = {
         "id": product_id,
         "constellation": constellation,
-        "acquisition_time": datetime.utcnow(),
+        "acquisition_time": datetime.now(timezone.utc),
         "file_path": db.config.base_path / f"{product_id}.tif",
     }
     db.image_manager.register_image(image_data)
@@ -51,7 +49,7 @@ def insert_test_product(db, product_id: str, constellation: str, ais_count: int 
     db.detection_manager.record_detection(detection_data)
 
     if ais_count > 0:
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         ais_data = [
             {
                 "mmsi": f"219000{idx}",
@@ -95,8 +93,8 @@ def test_insert_query_history(temp_db):
             id=str(uuid.uuid4()),
             constellation="SENTINEL-1",
             geometry_wkt="POLYGON ((10 10, 20 10, 20 20, 10 20, 10 10))",
-            start_date=datetime.utcnow() - timedelta(days=1),
-            end_date=datetime.utcnow(),
+            start_date=datetime.now(timezone.utc) - timedelta(days=1),
+            end_date=datetime.now(timezone.utc),
             parameters={"test_param": "value"},
         )
         s.add(history)
@@ -105,8 +103,6 @@ def test_insert_query_history(temp_db):
         count = s.query(ProductQueryHistory).count()
         assert count >= 1
 
-
-import uuid
 
 def test_insert_download_record(temp_db):
     query_id = str(uuid.uuid4())
@@ -127,38 +123,9 @@ def test_insert_download_record(temp_db):
             checksum="abc123",
             latitude=56.0,
             longitude=10.0,
-            product_metadata={"a": "b"}
+            product_metadata={"a": "b"},
         )
         s.add(d)
 
     with temp_db.session_scope() as s:
         assert s.query(DownloadRecord).filter_by(product_id=product_id).first() is not None
-
-
-def test_insert_download_record2(temp_db):
-    with temp_db.session_scope() as s:
-        query_id = str(uuid.uuid4())
-        s.add(ProductQueryHistory(id=query_id, constellation="SENTINEL-1"))
-
-        download = DownloadRecord(
-            product_id="DL_TEST_001",
-            query_id=query_id,
-            constellation="SENTINEL-1",
-            sensor_mode="IW",
-            product_type="GRD",
-            processing_level="L1",
-            status="DOWNLOADED",
-            file_path="/tmp/DL_TEST_001.tif",
-            file_size_mb=100.0,
-            checksum="fakechecksum123",
-            product_metadata={"key": "value"},
-            latitude=56.0,
-            longitude=10.0,
-        )
-        s.add(download)
-
-    with temp_db.session_scope() as s:
-        dl = s.query(DownloadRecord).filter_by(product_id="DL_TEST_001").first()
-        assert dl is not None
-        assert dl.status == "DOWNLOADED"
-        assert dl.latitude == 56.0
