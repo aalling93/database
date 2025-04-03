@@ -19,7 +19,7 @@ from database.util.tables import (
 @pytest.fixture(scope="module")
 def temp_db():
     # Setup temporary DB
-    temp_dir = Path("data/temp_test_data")
+    temp_dir = Path("/Users/kaaso/Documents/Tordenskjold/coding/database/data/temp_test_data")
     temp_dir.mkdir(exist_ok=True)
     settings = Settings()
 
@@ -27,7 +27,7 @@ def temp_db():
     db = DatabaseHandler(config=settings)
 
     yield db  # test functions will receive this
-    shutil.rmtree(temp_dir)  # teardown
+    #shutil.rmtree(temp_dir)  # teardown
 
 
 def insert_test_product(db, product_id: str, constellation: str, ais_count: int = 0):
@@ -106,7 +106,36 @@ def test_insert_query_history(temp_db):
         assert count >= 1
 
 
+import uuid
+
 def test_insert_download_record(temp_db):
+    query_id = str(uuid.uuid4())
+    product_id = f"DL_{uuid.uuid4().hex[:8]}"
+
+    with temp_db.session_scope() as s:
+        s.add(ProductQueryHistory(id=query_id, constellation="TEST_CONST"))
+        d = DownloadRecord(
+            product_id=product_id,
+            query_id=query_id,
+            constellation="TEST_CONST",
+            sensor_mode="IW",
+            product_type="GRD",
+            processing_level="L1",
+            status="DOWNLOADED",
+            file_path="/tmp/file.tif",
+            file_size_mb=50.0,
+            checksum="abc123",
+            latitude=56.0,
+            longitude=10.0,
+            product_metadata={"a": "b"}
+        )
+        s.add(d)
+
+    with temp_db.session_scope() as s:
+        assert s.query(DownloadRecord).filter_by(product_id=product_id).first() is not None
+
+
+def test_insert_download_record2(temp_db):
     with temp_db.session_scope() as s:
         query_id = str(uuid.uuid4())
         s.add(ProductQueryHistory(id=query_id, constellation="SENTINEL-1"))
