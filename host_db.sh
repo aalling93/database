@@ -9,7 +9,7 @@ set -euo pipefail  # safer bash
 #-u	Treat unset variables as an error and exit immediately.
 #-o pipefail	The pipeline returns the exit status of the last command to fail.
 
-
+# chmod +x host_db.sh
 
 # === Default Configuration ===
 DEFAULT_PORT=8000
