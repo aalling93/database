@@ -87,9 +87,9 @@ class DetectionRecord(Base, BaseMixin):
     image_id = Column(String(255), ForeignKey("images.id"))
     detection_file = Column(String(255))
     timestamp = Column(DateTime, default=datetime.utcnow)
-    num_detections = Column(Float)
-    avg_confidence = Column(Float)
-    stats = Column(JSON)
+
+    num_ship_detections = Column(Float)
+    num_dark_ship_detections = Column(Float)
 
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
@@ -113,10 +113,11 @@ class AISRecord(Base, BaseMixin):
     timestamp = Column(DateTime, nullable=True)
     latitude = Column(Float)
     longitude = Column(Float)
-    speed = Column(Float)
-    heading = Column(Float)
-    status = Column(String(50))
-    source = Column(String(50))  # e.g., "satellite", "terrestrial"
-    # using the imagerecord id as key here..
+    speed = Column(Float, nullable=True)
+    heading = Column(Float, nullable=True)
+    name = Column(String(50), nullable=True)
+    imo = Column(String(50), nullable=True)
+    length = Column(String(50), nullable=True)
+    type = Column(String(50), nullable=True)
 
     image_rel = relationship("ImageRecord", back_populates="ais_records")
