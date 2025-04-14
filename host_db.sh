@@ -22,7 +22,7 @@ usage() {
   exit 1
 }
 # ./host_db.sh --db /Users/kaaso/Documents/Tordenskjold/Data/Satellite_Data/db_test/downloads.db --port 8080 --title "My Secure DB"
-# ./host_db.sh --db /Users/kaaso/Documents/Tordenskjold/Data/Satellite_Data/db_test/downloads.db --port 8080 --title "My Secure DB" 
+# ./host_db.sh --db /mnt/hdd/Data/SAR/Sentinel1/IW/DbTest/downloads.db --port 8080 --title "My Secure DB" 
 
 
 # === Parse Arguments ===
