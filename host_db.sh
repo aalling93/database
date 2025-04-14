@@ -23,6 +23,7 @@ usage() {
 }
 # ./host_db.sh --db /Users/kaaso/Documents/Tordenskjold/Data/Satellite_Data/db_test/downloads.db --port 8080 --title "My Secure DB"
 # ./host_db.sh --db /mnt/hdd/Data/SAR/Sentinel1/IW/DbTest/downloads.db --port 8080 --title "My Secure DB" 
+# nohup ./host_db.sh --db /mnt/hdd/Data/SAR/Sentinel1/IW/DbTest/downloads.db --port 8080 --title "DTU Security Satellite image database for FE" > data/logs/host_db.out 2>&1 &
 
 
 # === Parse Arguments ===

@@ -4,10 +4,13 @@ wandb/*
 data/*
 notebooks/*
 
+data/logs/*
+
 
 !data/.gitkeep
 !notebooks/.gitkeep
-
+!data/logs
+!data/logs/.gitkeep
 # test cache
 manual_test/
 
