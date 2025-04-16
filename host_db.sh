@@ -114,7 +114,7 @@ while true; do
 
   # Run datasette (read-only, safe options)
   echo "[$(date)] Starting datasette..." >> "$LOGFILE"
-  datasette serve "$DB_PATH" \
+  datasette serve \
     --host 0.0.0.0 \
     --port "$PORT" \
     --metadata "$METAFILE" \
