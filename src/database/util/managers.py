@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Dict, Any, Optional, List, Union
 from uuid import uuid4
-from database.util.tables import Constellation, ProductQueryHistory, DownloadRecord, ImageRecord, DetectionRecord, AISRecord
+from database.util.tables import Constellation, ProductQueryHistory, DownloadRecord, ImageRecord, DetectionRecord, AISRecord, ObjectRecord
 from datetime import datetime, timezone
 
 
@@ -155,3 +155,43 @@ class ImageManager:
                         longitude=image_data.get("longitude"),
                     )
                 )
+
+
+class ObjectManager:
+    def __init__(self, session_factory, db_handler):
+        self.session_factory = session_factory
+        self.db_handler = db_handler
+
+    def insert_objects(self, image_id: str, object_list: List[Dict[str, Any]]):
+        if not object_list:
+            return
+
+        with self.db_handler.session_scope() as session:
+            records = [
+                ObjectRecord(
+                    id=str(uuid4()),
+                    image_id=image_id,
+                    obj_class=obj["obj_class"],
+                    latitude=obj["latitude"],
+                    longitude=obj["longitude"],
+                    distance_to_shore=obj["distance_to_shore"],
+                    class_index=obj["class_index"],
+                    probability=obj["probability"],
+                    probabilities=obj["probabilities"],
+                    length_min=obj["length_min"],
+                    length_max=obj["length_max"],
+                    breadth_min=obj["breadth_min"],
+                    breadth_max=obj["breadth_max"],
+                    orientation_min=obj["orientation_min"],
+                    orientation_max=obj["orientation_max"],
+                    speed_min=obj["speed_min"],
+                    speed_max=obj["speed_max"],
+                    bbox_width=obj["bbox_width"],
+                    bbox_height=obj["bbox_height"],
+                    bbox_x=obj["bbox_x"],
+                    bbox_y=obj["bbox_y"],
+                    encoded_image=obj["encoded_image"],
+                )
+                for obj in object_list
+            ]
+            session.add_all(records)

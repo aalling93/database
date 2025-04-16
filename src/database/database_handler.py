@@ -1,6 +1,7 @@
 """
 SQLAlchemy Database Models and Handler for Satellite Product Tracking
 """
+
 from __future__ import annotations
 
 from contextlib import contextmanager
@@ -22,6 +23,7 @@ from database.util.managers import (
     DownloadManager,
     ConstellationManager,
     QueryManager,
+    ObjectManager,
     AISManager,
 )
 
@@ -46,6 +48,7 @@ class DatabaseHandler:
         self.constellation_manager = ConstellationManager(self.session_factory, self)
         self.query_manager = QueryManager(self.session_factory, self)
         self.ais_manager = AISManager(self.session_factory, self)
+        self.object_manager = ObjectManager(self.session_factory, self)
 
         # Initialize the database
         self._init_db()

@@ -51,6 +51,47 @@ class DatabaseViews:
                     )
                 )
 
+                #
+                # View: detection summary per constellation
+                conn.execute(text(f"DROP VIEW IF EXISTS detection_summary_{safe_name}"))
+                conn.execute(
+                    text(
+                        f"""
+                        CREATE VIEW detection_summary_{safe_name} AS
+                        SELECT
+                            constellation,
+                            COUNT(*) AS num_detections,
+                            COUNT(DISTINCT image_id) AS num_images,
+                            ROUND(AVG(num_ship_detections), 2) AS avg_detections_per_image
+                        FROM detections
+                        WHERE constellation = '{name}'
+                        GROUP BY constellation;
+                    """
+                    )
+                )
+
+                # View: object summary per constellation
+                conn.execute(text(f"DROP VIEW IF EXISTS object_summary_{safe_name}"))
+                conn.execute(
+                    text(
+                        f"""
+                        CREATE VIEW object_summary_{safe_name} AS
+                        SELECT
+                            d.constellation,
+                            COUNT(o.id) AS num_objects,
+                            ROUND(AVG(o.length_min), 2) AS avg_length_min,
+                            ROUND(AVG(o.length_max), 2) AS avg_length_max,
+                            ROUND(AVG(o.speed_min), 2) AS avg_speed_min,
+                            ROUND(AVG(o.speed_max), 2) AS avg_speed_max,
+                            ROUND(AVG(o.distance_to_shore), 2) AS avg_distance_to_shore
+                        FROM objects o
+                        JOIN detections d ON o.image_id = d.image_id
+                        WHERE d.constellation = '{name}'
+                        GROUP BY d.constellation;
+                    """
+                    )
+                )
+
             # Create global views
             conn.execute(
                 text(

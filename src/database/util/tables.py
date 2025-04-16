@@ -1,6 +1,7 @@
 """
 SQLAlchemy Database Models and Handler for Satellite Product Tracking
 """
+
 from __future__ import annotations
 
 
@@ -130,3 +131,30 @@ class AISRecord(Base, BaseMixin):
     type = Column(String(50), nullable=True)
 
     image_rel = relationship("ImageRecord", back_populates="ais_records")
+
+
+class ObjectRecord(Base, BaseMixin):
+    __tablename__ = "objects"
+
+    id = Column(String, primary_key=True)
+    image_id = Column(String, ForeignKey("images.id"))
+    obj_class = Column(String)
+    latitude = Column(Float)
+    longitude = Column(Float)
+    distance_to_shore = Column(Float)
+    class_index = Column(String)
+    probability = Column(Float)
+    probabilities = Column(String)  # JSON-encoded list
+    length_min = Column(Float)
+    length_max = Column(Float)
+    breadth_min = Column(Float)
+    breadth_max = Column(Float)
+    orientation_min = Column(Float)
+    orientation_max = Column(Float)
+    speed_min = Column(Float)
+    speed_max = Column(Float)
+    bbox_width = Column(Float)
+    bbox_height = Column(Float)
+    bbox_x = Column(Float)
+    bbox_y = Column(Float)
+    encoded_image = Column(String)
