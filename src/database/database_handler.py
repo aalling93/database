@@ -37,7 +37,9 @@ class DatabaseHandler:
 
         # This points SQLAlchemy to the exact same file every time (unless settings.DOWNLOAD_DIR changes).
         # so if the file exists, it jsut reuse it.
-        self.engine = create_engine(f"sqlite:///{self.db_path}", pool_pre_ping=True)
+        # self.engine = create_engine(f"sqlite:///{self.db_path}", pool_pre_ping=True)
+        self.engine = create_engine(f"sqlite:///{self.db_path}", pool_pre_ping=True, connect_args={"timeout": 10})  # wait up to 10 seconds for locks
+
         self.session_factory = scoped_session(sessionmaker(bind=self.engine))
         self.views = DatabaseViews(self.engine, SATELLITE_CONFIG)  # Initialize DatabaseViews
 

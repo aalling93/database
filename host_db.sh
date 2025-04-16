@@ -86,17 +86,13 @@ unset SSH_CLIENT
 unset SSH_CONNECTION
 
 
-# TODO: change the json so it is easier to display the image.. Or whatever.
-# we show the encoded string as an image, hide the original, and make it possible to download if you want...  (when download table, the string is downlaod not the iamge)
 METAFILE="/tmp/datasette_metadata.json"
 cat > "$METAFILE" <<EOF
 {
   "title": "$TITLE",
-  "license": "Internal Only",
+  "license": "Internal Only"
 }
 EOF
-
-
 
 # === Kinda Secure Hosting. Probabily good for F.. ===
 mkdir -p "$(dirname "$LOGFILE")"
@@ -108,7 +104,7 @@ while true; do
   echo "[$(date)] Using port: $PORT | Title: '$TITLE'" >> "$LOGFILE"
   echo "[$(date)] Metadata file: $METAFILE" >> "$LOGFILE"
   
-  echo "[$(date)] Full command: datasette serve \"$DB_PATH\" --host 0.0.0.0 --port $PORT --metadata $METAFILE --setting allow_download false --cors" >> "$LOGFILE"
+  echo "[$(date)] Full command: datasette serve \"$DB_PATH\" --host 0.0.0.0 --port $PORT --metadata $METAFILE --setting allow_download false --cors --immutable $DB_PATH" >> "$LOGFILE"
 
 
   # Kill previous instance if needed (safe local-only port)
@@ -116,18 +112,16 @@ while true; do
   fuser -k "${PORT}/tcp" &>> "$LOGFILE" || echo "[$(date)] No process on port $PORT" >> "$LOGFILE"
 
 
-
-
   # Run datasette (read-only, safe options)
   echo "[$(date)] Starting datasette..." >> "$LOGFILE"
   datasette serve "$DB_PATH" \
-  --host 0.0.0.0 \
-  --port "$PORT" \
-  --metadata "$METAFILE" \
-  --setting allow_download false \
-  --setting sql_time_limit_ms 10000 \
-  --cors \
-  >> "$LOGFILE" 2>&1
+    --host 0.0.0.0 \
+    --port "$PORT" \
+    --metadata "$METAFILE" \
+    --setting allow_download false \
+    --cors \
+    --immutable "$DB_PATH" >> "$LOGFILE" 2>&1
+
 
   EXIT_CODE=$?
 
