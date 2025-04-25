@@ -98,13 +98,22 @@ EOF
 mkdir -p "$(dirname "$LOGFILE")"
 echo "[INFO] Logging to: $LOGFILE"
 
+  #datasette serve \
+  #  --host 0.0.0.0 \
+  #  --port "$PORT" \
+  #  --metadata "$METAFILE" \
+  #  --setting allow_download false \
+  #  --cors \
+  #  --immutable "$DB_PATH" >> "$LOGFILE" 2>&1
+  #
+
 while true; do
   echo "[$(date)] ==========================================================" >> "$LOGFILE"
   echo "[$(date)] Launching datasette for DB: $DB_PATH" >> "$LOGFILE"
   echo "[$(date)] Using port: $PORT | Title: '$TITLE'" >> "$LOGFILE"
   echo "[$(date)] Metadata file: $METAFILE" >> "$LOGFILE"
   
-  echo "[$(date)] Full command: datasette serve \"$DB_PATH\" --host 0.0.0.0 --port $PORT --metadata $METAFILE --setting allow_download false --cors --immutable $DB_PATH" >> "$LOGFILE"
+  echo "[$(date)] Full command: datasette serve \"$DB_PATH\" --host 0.0.0.0 --port $PORT --metadata $METAFILE --setting allow_download false --cors" >> "$LOGFILE"
 
 
   # Kill previous instance if needed (safe local-only port)
@@ -114,13 +123,12 @@ while true; do
 
   # Run datasette (read-only, safe options)
   echo "[$(date)] Starting datasette..." >> "$LOGFILE"
-  datasette serve \
-    --host 0.0.0.0 \
-    --port "$PORT" \
-    --metadata "$METAFILE" \
-    --setting allow_download false \
-    --cors \
-    --immutable "$DB_PATH" >> "$LOGFILE" 2>&1
+  datasette serve "$DB_PATH" \
+     --host 0.0.0.0 \
+     --port "$PORT" \
+     --metadata "$METAFILE" \
+     --setting allow_download false \
+     --cors >> "$LOGFILE" 2>&1
 
 
   EXIT_CODE=$?
