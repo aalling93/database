@@ -7,3 +7,9 @@ nohup ./host_db.sh --db /mnt/hdd/Data/SAR/Sentinel1/IW/DbTest/downloads.db --por
 lsof -i :8080
 chekc the log
 tail -f /tmp/datasette_host.log
+
+
+
+assert that it is read only
+sqlite3 /tmp/readonly_downloads.db "PRAGMA query_only;"
+

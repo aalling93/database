@@ -121,18 +121,29 @@ while true; do
   fuser -k "${PORT}/tcp" &>> "$LOGFILE" || echo "[$(date)] No process on port $PORT" >> "$LOGFILE"
 
 
+  #datasette serve "$DB_PATH" \
+  #   --host 0.0.0.0 \
+  #   --port "$PORT" \
+  #   --metadata "$METAFILE" \
+  #   --setting allow_download false \
+  #   --cors >> "$LOGFILE" 2>&1
+
   # Run datasette (read-only, safe options)
+
+  datasette serve \
+    --immutable "$DB_PATH" \
+    --host 0.0.0.0 \
+    --port "$PORT" \
+    --metadata "$METAFILE" \
+    --setting allow_download false \
+    --cors >> "$LOGFILE" 2>&1
+
+
   echo "[$(date)] Starting datasette..." >> "$LOGFILE"
-  datasette serve "$DB_PATH" \
-     --host 0.0.0.0 \
-     --port "$PORT" \
-     --metadata "$METAFILE" \
-     --setting allow_download false \
-     --cors >> "$LOGFILE" 2>&1
 
 
   EXIT_CODE=$?
 
-  echo "[$(date)] ⚠️ Datasette exited with code $EXIT_CODE. Restarting in 5 sec..." >> "$LOGFILE"
+  echo "[$(date)] Datasette exited with code $EXIT_CODE. Restarting in 5 sec..." >> "$LOGFILE"
   sleep 5
 done
